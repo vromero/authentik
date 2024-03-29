@@ -1,5 +1,7 @@
 """WebAuthn stage"""
 
+from typing import Optional
+
 from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils.timezone import now
@@ -76,7 +78,7 @@ class AuthenticateWebAuthnStage(ConfigurableStage, FriendlyNamedStage, Stage):
         choices=ResidentKeyRequirement.choices,
         default=ResidentKeyRequirement.PREFERRED,
     )
-    authenticator_attachment = models.TextField(  # noqa: DJ001
+    authenticator_attachment = models.TextField(
         choices=AuthenticatorAttachment.choices, default=None, null=True
     )
 
@@ -87,7 +89,7 @@ class AuthenticateWebAuthnStage(ConfigurableStage, FriendlyNamedStage, Stage):
         return AuthenticateWebAuthnStageSerializer
 
     @property
-    def view(self) -> type[View]:
+    def type(self) -> type[View]:
         from authentik.stages.authenticator_webauthn.stage import AuthenticatorWebAuthnStageView
 
         return AuthenticatorWebAuthnStageView
@@ -96,7 +98,7 @@ class AuthenticateWebAuthnStage(ConfigurableStage, FriendlyNamedStage, Stage):
     def component(self) -> str:
         return "ak-stage-authenticator-webauthn-form"
 
-    def ui_user_settings(self) -> UserSettingSerializer | None:
+    def ui_user_settings(self) -> Optional[UserSettingSerializer]:
         return UserSettingSerializer(
             data={
                 "title": self.friendly_name or str(self._meta.verbose_name),

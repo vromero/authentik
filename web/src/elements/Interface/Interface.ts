@@ -1,15 +1,16 @@
+import { EVENT_REFRESH_ENTERPRISE } from "@goauthentik/app/common/constants";
 import { DEFAULT_CONFIG } from "@goauthentik/common/api/config";
 import { brand, config } from "@goauthentik/common/api/config";
-import { EVENT_REFRESH_ENTERPRISE } from "@goauthentik/common/constants";
 import { UIConfig, uiConfig } from "@goauthentik/common/ui/config";
 import {
     authentikBrandContext,
     authentikConfigContext,
     authentikEnterpriseContext,
 } from "@goauthentik/elements/AuthentikContexts";
+import type { AdoptedStyleSheetsElement } from "@goauthentik/elements/types";
 import { ensureCSSStyleSheet } from "@goauthentik/elements/utils/ensureCSSStyleSheet";
 
-import { ContextProvider } from "@lit/context";
+import { ContextProvider } from "@lit-labs/context";
 import { state } from "lit/decorators.js";
 
 import PFBase from "@patternfly/patternfly/patternfly-base.css";
@@ -75,9 +76,9 @@ export class Interface extends AKElement implements AkInterface {
         this.dataset.akInterfaceRoot = "true";
     }
 
-    _activateTheme(root: DocumentOrShadowRoot, theme: UiThemeEnum): void {
+    _activateTheme(root: AdoptedStyleSheetsElement, theme: UiThemeEnum): void {
         super._activateTheme(root, theme);
-        super._activateTheme(document as unknown as DocumentOrShadowRoot, theme);
+        super._activateTheme(document, theme);
     }
 
     async getTheme(): Promise<UiThemeEnum> {

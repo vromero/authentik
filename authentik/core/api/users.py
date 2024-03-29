@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 from json import loads
-from typing import Any
+from typing import Any, Optional
 
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.sessions.backends.cache import KEY_PREFIX
@@ -142,7 +142,7 @@ class UserSerializer(ModelSerializer):
         self._set_password(instance, password)
         return instance
 
-    def _set_password(self, instance: User, password: str | None):
+    def _set_password(self, instance: User, password: Optional[str]):
         """Set password of user if we're in a blueprint context, and if it's an empty
         string then use an unusable password"""
         if SERIALIZER_CONTEXT_BLUEPRINT in self.context and password:
@@ -358,7 +358,7 @@ class UsersFilter(FilterSet):
         try:
             value = loads(value)
         except ValueError:
-            raise ValidationError(detail="filter: failed to parse JSON") from None
+            raise ValidationError(detail="filter: failed to parse JSON")
         if not isinstance(value, dict):
             raise ValidationError(detail="filter: value must be key:value mapping")
         qs = {}
@@ -397,14 +397,15 @@ class UserViewSet(UsedByMixin, ModelViewSet):
     def get_queryset(self):  # pragma: no cover
         return User.objects.all().exclude_anonymous().prefetch_related("ak_groups")
 
-    def _create_recovery_link(self) -> tuple[str, Token]:
+    def _create_recovery_link(self) -> tuple[Optional[str], Optional[Token]]:
         """Create a recovery link (when the current brand has a recovery flow set),
         that can either be shown to an admin or sent to the user directly"""
         brand: Brand = self.request._request.brand
         # Check that there is a recovery flow, if not return an error
         flow = brand.flow_recovery
         if not flow:
-            raise ValidationError({"non_field_errors": "No recovery flow set."})
+            LOGGER.debug("No recovery flow set")
+            return None, None
         user: User = self.get_object()
         planner = FlowPlanner(flow)
         planner.allow_empty_flows = True
@@ -416,9 +417,8 @@ class UserViewSet(UsedByMixin, ModelViewSet):
                 },
             )
         except FlowNonApplicableException:
-            raise ValidationError(
-                {"non_field_errors": "Recovery flow not applicable to user"}
-            ) from None
+            LOGGER.warning("Recovery flow not applicable to user")
+            return None, None
         token, __ = FlowToken.objects.update_or_create(
             identifier=f"{user.uid}-password-reset",
             defaults={
@@ -563,13 +563,16 @@ class UserViewSet(UsedByMixin, ModelViewSet):
     @extend_schema(
         responses={
             "200": LinkSerializer(many=False),
+            "404": LinkSerializer(many=False),
         },
-        request=None,
     )
-    @action(detail=True, pagination_class=None, filter_backends=[], methods=["POST"])
+    @action(detail=True, pagination_class=None, filter_backends=[])
     def recovery(self, request: Request, pk: int) -> Response:
         """Create a temporary link that a user can use to recover their accounts"""
         link, _ = self._create_recovery_link()
+        if not link:
+            LOGGER.debug("Couldn't create token")
+            return Response({"link": ""}, status=404)
         return Response({"link": link})
 
     @permission_required("authentik_core.reset_user_password")
@@ -584,24 +587,27 @@ class UserViewSet(UsedByMixin, ModelViewSet):
         ],
         responses={
             "204": OpenApiResponse(description="Successfully sent recover email"),
+            "404": OpenApiResponse(description="Bad request"),
         },
-        request=None,
     )
-    @action(detail=True, pagination_class=None, filter_backends=[], methods=["POST"])
+    @action(detail=True, pagination_class=None, filter_backends=[])
     def recovery_email(self, request: Request, pk: int) -> Response:
         """Create a temporary link that a user can use to recover their accounts"""
         for_user: User = self.get_object()
         if for_user.email == "":
             LOGGER.debug("User doesn't have an email address")
-            raise ValidationError({"non_field_errors": "User does not have an email address set."})
+            return Response(status=404)
         link, token = self._create_recovery_link()
+        if not link:
+            LOGGER.debug("Couldn't create token")
+            return Response(status=404)
         # Lookup the email stage to assure the current user can access it
         stages = get_objects_for_user(
             request.user, "authentik_stages_email.view_emailstage"
         ).filter(pk=request.query_params.get("email_stage"))
         if not stages.exists():
             LOGGER.debug("Email stage does not exist/user has no permissions")
-            raise ValidationError({"non_field_errors": "Email stage does not exist."})
+            return Response(status=404)
         email_stage: EmailStage = stages.first()
         message = TemplateEmailMessage(
             subject=_(email_stage.subject),

@@ -1,5 +1,7 @@
 """Device flow views"""
 
+from typing import Optional
+
 from django.http import HttpRequest, HttpResponse
 from django.utils.translation import gettext as _
 from django.views import View
@@ -31,7 +33,7 @@ LOGGER = get_logger()
 QS_KEY_CODE = "code"  # nosec
 
 
-def get_application(provider: OAuth2Provider) -> Application | None:
+def get_application(provider: OAuth2Provider) -> Optional[Application]:
     """Get application from provider"""
     try:
         app = provider.application
@@ -42,7 +44,7 @@ def get_application(provider: OAuth2Provider) -> Application | None:
         return None
 
 
-def validate_code(code: int, request: HttpRequest) -> HttpResponse | None:
+def validate_code(code: int, request: HttpRequest) -> Optional[HttpResponse]:
     """Validate user token"""
     token = DeviceToken.objects.filter(
         user_code=code,

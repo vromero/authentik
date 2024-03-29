@@ -18,8 +18,8 @@ from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 defuse_stdlib()
 django.setup()
 
-
-from authentik.root import websocket  # noqa
+# pylint: disable=wrong-import-position
+from authentik.root import websocket  # noqa  # isort:skip
 
 
 class LifespanApp:

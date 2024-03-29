@@ -1,6 +1,6 @@
 """LDAP Provider"""
 
-from collections.abc import Iterable
+from typing import Iterable, Optional
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -82,7 +82,7 @@ class LDAPProvider(OutpostModel, BackchannelProvider):
     )
 
     @property
-    def launch_url(self) -> str | None:
+    def launch_url(self) -> Optional[str]:
         """LDAP never has a launch URL"""
         return None
 

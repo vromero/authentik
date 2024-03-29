@@ -4896,8 +4896,8 @@ paths:
                 $ref: '#/components/schemas/GenericError'
           description: ''
   /core/users/{id}/recovery/:
-    post:
-      operationId: core_users_recovery_create
+    get:
+      operationId: core_users_recovery_retrieve
       description: Create a temporary link that a user can use to recover their accounts
       parameters:
       - in: path
@@ -4917,6 +4917,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Link'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Link'
+          description: ''
         '400':
           content:
             application/json:
@@ -4930,8 +4936,8 @@ paths:
                 $ref: '#/components/schemas/GenericError'
           description: ''
   /core/users/{id}/recovery_email/:
-    post:
-      operationId: core_users_recovery_email_create
+    get:
+      operationId: core_users_recovery_email_retrieve
       description: Create a temporary link that a user can use to recover their accounts
       parameters:
       - in: query
@@ -4952,6 +4958,8 @@ paths:
       responses:
         '204':
           description: Successfully sent recover email
+        '404':
+          description: Bad request
         '400':
           content:
             application/json:
@@ -17885,7 +17893,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: A UUID string identifying this RAC Connection token.
+        description: A UUID string identifying this connection token.
         required: true
       tags:
       - rac
@@ -17919,7 +17927,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: A UUID string identifying this RAC Connection token.
+        description: A UUID string identifying this connection token.
         required: true
       tags:
       - rac
@@ -17959,7 +17967,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: A UUID string identifying this RAC Connection token.
+        description: A UUID string identifying this connection token.
         required: true
       tags:
       - rac
@@ -17998,7 +18006,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: A UUID string identifying this RAC Connection token.
+        description: A UUID string identifying this connection token.
         required: true
       tags:
       - rac
@@ -18029,7 +18037,7 @@ paths:
         schema:
           type: string
           format: uuid
-        description: A UUID string identifying this RAC Connection token.
+        description: A UUID string identifying this connection token.
         required: true
       tags:
       - rac
@@ -18512,7 +18520,6 @@ paths:
           - authentik_stages_password.passwordstage
           - authentik_stages_prompt.prompt
           - authentik_stages_prompt.promptstage
-          - authentik_stages_source.sourcestage
           - authentik_stages_user_delete.userdeletestage
           - authentik_stages_user_login.userloginstage
           - authentik_stages_user_logout.userlogoutstage
@@ -18588,7 +18595,6 @@ paths:
           * `authentik_providers_rac.racprovider` - RAC Provider
           * `authentik_providers_rac.endpoint` - RAC Endpoint
           * `authentik_providers_rac.racpropertymapping` - RAC Property Mapping
-          * `authentik_stages_source.sourcestage` - Source Stage
           * `authentik_events.event` - Event
           * `authentik_events.notificationtransport` - Notification Transport
           * `authentik_events.notification` - Notification
@@ -18802,7 +18808,6 @@ paths:
           - authentik_stages_password.passwordstage
           - authentik_stages_prompt.prompt
           - authentik_stages_prompt.promptstage
-          - authentik_stages_source.sourcestage
           - authentik_stages_user_delete.userdeletestage
           - authentik_stages_user_login.userloginstage
           - authentik_stages_user_logout.userlogoutstage
@@ -18878,7 +18883,6 @@ paths:
           * `authentik_providers_rac.racprovider` - RAC Provider
           * `authentik_providers_rac.endpoint` - RAC Endpoint
           * `authentik_providers_rac.racpropertymapping` - RAC Property Mapping
-          * `authentik_stages_source.sourcestage` - Source Stage
           * `authentik_events.event` - Event
           * `authentik_events.notificationtransport` - Notification Transport
           * `authentik_events.notification` - Notification
@@ -19926,10 +19930,6 @@ paths:
         description: Number of results to return per page.
         schema:
           type: integer
-      - in: query
-        name: password_login_update_internal_password
-        schema:
-          type: boolean
       - in: query
         name: peer_certificate
         schema:
@@ -27880,289 +27880,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/GenericError'
           description: ''
-  /stages/source/:
-    get:
-      operationId: stages_source_list
-      description: SourceStage Viewset
-      parameters:
-      - in: query
-        name: name
-        schema:
-          type: string
-      - name: ordering
-        required: false
-        in: query
-        description: Which field to use when ordering the results.
-        schema:
-          type: string
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      - name: page_size
-        required: false
-        in: query
-        description: Number of results to return per page.
-        schema:
-          type: integer
-      - in: query
-        name: resume_timeout
-        schema:
-          type: string
-      - name: search
-        required: false
-        in: query
-        description: A search term.
-        schema:
-          type: string
-      - in: query
-        name: source
-        schema:
-          type: string
-          format: uuid
-      - in: query
-        name: stage_uuid
-        schema:
-          type: string
-          format: uuid
-      tags:
-      - stages
-      security:
-      - authentik: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedSourceStageList'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericError'
-          description: ''
-    post:
-      operationId: stages_source_create
-      description: SourceStage Viewset
-      tags:
-      - stages
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SourceStageRequest'
-        required: true
-      security:
-      - authentik: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SourceStage'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericError'
-          description: ''
-  /stages/source/{stage_uuid}/:
-    get:
-      operationId: stages_source_retrieve
-      description: SourceStage Viewset
-      parameters:
-      - in: path
-        name: stage_uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Source Stage.
-        required: true
-      tags:
-      - stages
-      security:
-      - authentik: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SourceStage'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericError'
-          description: ''
-    put:
-      operationId: stages_source_update
-      description: SourceStage Viewset
-      parameters:
-      - in: path
-        name: stage_uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Source Stage.
-        required: true
-      tags:
-      - stages
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SourceStageRequest'
-        required: true
-      security:
-      - authentik: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SourceStage'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericError'
-          description: ''
-    patch:
-      operationId: stages_source_partial_update
-      description: SourceStage Viewset
-      parameters:
-      - in: path
-        name: stage_uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Source Stage.
-        required: true
-      tags:
-      - stages
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedSourceStageRequest'
-      security:
-      - authentik: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SourceStage'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericError'
-          description: ''
-    delete:
-      operationId: stages_source_destroy
-      description: SourceStage Viewset
-      parameters:
-      - in: path
-        name: stage_uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Source Stage.
-        required: true
-      tags:
-      - stages
-      security:
-      - authentik: []
-      responses:
-        '204':
-          description: No response body
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericError'
-          description: ''
-  /stages/source/{stage_uuid}/used_by/:
-    get:
-      operationId: stages_source_used_by_list
-      description: Get a list of all objects that use this object
-      parameters:
-      - in: path
-        name: stage_uuid
-        schema:
-          type: string
-          format: uuid
-        description: A UUID string identifying this Source Stage.
-        required: true
-      tags:
-      - stages
-      security:
-      - authentik: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UsedBy'
-          description: ''
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationError'
-          description: ''
-        '403':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GenericError'
-          description: ''
   /stages/user_delete/:
     get:
       operationId: stages_user_delete_list
@@ -29933,7 +29650,6 @@ components:
       - authentik.enterprise
       - authentik.enterprise.audit
       - authentik.enterprise.providers.rac
-      - authentik.enterprise.stages.source
       - authentik.events
       type: string
       description: |-
@@ -29988,11 +29704,10 @@ components:
         * `authentik.enterprise` - authentik Enterprise
         * `authentik.enterprise.audit` - authentik Enterprise.Audit
         * `authentik.enterprise.providers.rac` - authentik Enterprise.Providers.RAC
-        * `authentik.enterprise.stages.source` - authentik Enterprise.Stages.Source
         * `authentik.events` - authentik Events
     AppleChallengeResponseRequest:
       type: object
-      description: Pseudo class for apple response
+      description: Pseudo class for plex response
       properties:
         component:
           type: string
@@ -31786,7 +31501,8 @@ components:
         pk:
           type: string
           format: uuid
-          title: Connection token uuid
+          readOnly: true
+          title: Pbm uuid
         provider:
           type: integer
         provider_obj:
@@ -31796,6 +31512,7 @@ components:
         endpoint:
           type: string
           format: uuid
+          readOnly: true
         endpoint_obj:
           allOf:
           - $ref: '#/components/schemas/Endpoint'
@@ -31807,6 +31524,7 @@ components:
       required:
       - endpoint
       - endpoint_obj
+      - pk
       - provider
       - provider_obj
       - user
@@ -31814,17 +31532,9 @@ components:
       type: object
       description: ConnectionToken Serializer
       properties:
-        pk:
-          type: string
-          format: uuid
-          title: Connection token uuid
         provider:
           type: integer
-        endpoint:
-          type: string
-          format: uuid
       required:
-      - endpoint
       - provider
     ConsentChallenge:
       type: object
@@ -32355,10 +32065,7 @@ components:
             type: array
             items:
               $ref: '#/components/schemas/ErrorDetail'
-        name:
-          type: string
       required:
-      - name
       - type
     DummyChallengeResponseRequest:
       type: object
@@ -33040,7 +32747,6 @@ components:
             * `authentik.enterprise` - authentik Enterprise
             * `authentik.enterprise.audit` - authentik Enterprise.Audit
             * `authentik.enterprise.providers.rac` - authentik Enterprise.Providers.RAC
-            * `authentik.enterprise.stages.source` - authentik Enterprise.Stages.Source
             * `authentik.events` - authentik Events
         model:
           allOf:
@@ -33118,7 +32824,6 @@ components:
             * `authentik_providers_rac.racprovider` - RAC Provider
             * `authentik_providers_rac.endpoint` - RAC Endpoint
             * `authentik_providers_rac.racpropertymapping` - RAC Property Mapping
-            * `authentik_stages_source.sourcestage` - Source Stage
             * `authentik_events.event` - Event
             * `authentik_events.notificationtransport` - Notification Transport
             * `authentik_events.notification` - Notification
@@ -33241,7 +32946,6 @@ components:
             * `authentik.enterprise` - authentik Enterprise
             * `authentik.enterprise.audit` - authentik Enterprise.Audit
             * `authentik.enterprise.providers.rac` - authentik Enterprise.Providers.RAC
-            * `authentik.enterprise.stages.source` - authentik Enterprise.Stages.Source
             * `authentik.events` - authentik Events
         model:
           allOf:
@@ -33319,7 +33023,6 @@ components:
             * `authentik_providers_rac.racprovider` - RAC Provider
             * `authentik_providers_rac.endpoint` - RAC Endpoint
             * `authentik_providers_rac.racpropertymapping` - RAC Property Mapping
-            * `authentik_stages_source.sourcestage` - Source Stage
             * `authentik_events.event` - Event
             * `authentik_events.notificationtransport` - Notification Transport
             * `authentik_events.notification` - Notification
@@ -33782,7 +33485,8 @@ components:
         logs:
           type: array
           items:
-            $ref: '#/components/schemas/LogEvent'
+            type: object
+            additionalProperties: {}
           readOnly: true
         success:
           type: boolean
@@ -34340,8 +34044,6 @@ components:
           type: boolean
         application_pre:
           type: string
-        flow_designation:
-          $ref: '#/components/schemas/FlowDesignationEnum'
         enroll_url:
           type: string
         recovery_url:
@@ -34357,7 +34059,6 @@ components:
         show_source_labels:
           type: boolean
       required:
-      - flow_designation
       - password_fields
       - primary_action
       - show_source_labels
@@ -35228,10 +34929,6 @@ components:
         object_uniqueness_field:
           type: string
           description: Field which contains a unique Identifier.
-        password_login_update_internal_password:
-          type: boolean
-          description: Update internal authentik password when login succeeds with
-            LDAP
         sync_users:
           type: boolean
         sync_users_password:
@@ -35373,10 +35070,6 @@ components:
           type: string
           minLength: 1
           description: Field which contains a unique Identifier.
-        password_login_update_internal_password:
-          type: boolean
-          description: Update internal authentik password when login succeeds with
-            LDAP
         sync_users:
           type: boolean
         sync_users_password:
@@ -35514,48 +35207,6 @@ components:
           type: string
       required:
       - link
-    LogEvent:
-      type: object
-      description: Single log message with all context logged.
-      properties:
-        timestamp:
-          type: string
-          format: date-time
-        log_level:
-          $ref: '#/components/schemas/LogLevelEnum'
-        logger:
-          type: string
-        event:
-          type: string
-        attributes:
-          type: object
-          additionalProperties: {}
-      required:
-      - attributes
-      - event
-      - log_level
-      - logger
-      - timestamp
-    LogLevelEnum:
-      enum:
-      - critical
-      - exception
-      - error
-      - warn
-      - warning
-      - info
-      - debug
-      - notset
-      type: string
-      description: |-
-        * `critical` - critical
-        * `exception` - exception
-        * `error` - error
-        * `warn` - warn
-        * `warning` - warning
-        * `info` - info
-        * `debug` - debug
-        * `notset` - notset
     LoginChallengeTypes:
       oneOf:
       - $ref: '#/components/schemas/RedirectChallenge'
@@ -35687,7 +35338,6 @@ components:
       - authentik_providers_rac.racprovider
       - authentik_providers_rac.endpoint
       - authentik_providers_rac.racpropertymapping
-      - authentik_stages_source.sourcestage
       - authentik_events.event
       - authentik_events.notificationtransport
       - authentik_events.notification
@@ -35764,7 +35414,6 @@ components:
         * `authentik_providers_rac.racprovider` - RAC Provider
         * `authentik_providers_rac.endpoint` - RAC Endpoint
         * `authentik_providers_rac.racpropertymapping` - RAC Property Mapping
-        * `authentik_stages_source.sourcestage` - Source Stage
         * `authentik_events.event` - Event
         * `authentik_events.notificationtransport` - Notification Transport
         * `authentik_events.notification` - Notification
@@ -37699,18 +37348,6 @@ components:
       required:
       - pagination
       - results
-    PaginatedSourceStageList:
-      type: object
-      properties:
-        pagination:
-          $ref: '#/components/schemas/Pagination'
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/SourceStage'
-      required:
-      - pagination
-      - results
     PaginatedStageList:
       type: object
       properties:
@@ -38647,15 +38284,8 @@ components:
       type: object
       description: ConnectionToken Serializer
       properties:
-        pk:
-          type: string
-          format: uuid
-          title: Connection token uuid
         provider:
           type: integer
-        endpoint:
-          type: string
-          format: uuid
     PatchedConsentStageRequest:
       type: object
       description: ConsentStage Serializer
@@ -38961,7 +38591,6 @@ components:
             * `authentik.enterprise` - authentik Enterprise
             * `authentik.enterprise.audit` - authentik Enterprise.Audit
             * `authentik.enterprise.providers.rac` - authentik Enterprise.Providers.RAC
-            * `authentik.enterprise.stages.source` - authentik Enterprise.Stages.Source
             * `authentik.events` - authentik Events
         model:
           allOf:
@@ -39039,7 +38668,6 @@ components:
             * `authentik_providers_rac.racprovider` - RAC Provider
             * `authentik_providers_rac.endpoint` - RAC Endpoint
             * `authentik_providers_rac.racpropertymapping` - RAC Property Mapping
-            * `authentik_stages_source.sourcestage` - Source Stage
             * `authentik_events.event` - Event
             * `authentik_events.notificationtransport` - Notification Transport
             * `authentik_events.notification` - Notification
@@ -39493,10 +39121,6 @@ components:
           type: string
           minLength: 1
           description: Field which contains a unique Identifier.
-        password_login_update_internal_password:
-          type: boolean
-          description: Update internal authentik password when login succeeds with
-            LDAP
         sync_users:
           type: boolean
         sync_users_password:
@@ -40626,25 +40250,6 @@ components:
         impersonation:
           type: boolean
           description: Globally enable/disable impersonation.
-    PatchedSourceStageRequest:
-      type: object
-      description: SourceStage Serializer
-      properties:
-        name:
-          type: string
-          minLength: 1
-        flow_set:
-          type: array
-          items:
-            $ref: '#/components/schemas/FlowSetRequest'
-        source:
-          type: string
-          format: uuid
-        resume_timeout:
-          type: string
-          minLength: 1
-          description: 'Amount of time a user can take to return from the source to
-            continue the flow (Format: hours=-1;minutes=-2;seconds=-3)'
     PatchedStaticDeviceRequest:
       type: object
       description: Serializer for static authenticator devices
@@ -41350,7 +40955,8 @@ components:
         log_messages:
           type: array
           items:
-            $ref: '#/components/schemas/LogEvent'
+            type: object
+            additionalProperties: {}
           readOnly: true
       required:
       - log_messages
@@ -41808,7 +41414,6 @@ components:
       - discord
       - facebook
       - github
-      - gitlab
       - google
       - mailcow
       - okta
@@ -41824,7 +41429,6 @@ components:
         * `discord` - Discord
         * `facebook` - Facebook
         * `github` - GitHub
-        * `gitlab` - GitLab
         * `google` - Google
         * `mailcow` - Mailcow
         * `okta` - Okta
@@ -43988,74 +43592,6 @@ components:
       required:
       - name
       - slug
-    SourceStage:
-      type: object
-      description: SourceStage Serializer
-      properties:
-        pk:
-          type: string
-          format: uuid
-          readOnly: true
-          title: Stage uuid
-        name:
-          type: string
-        component:
-          type: string
-          description: Get object type so that we know how to edit the object
-          readOnly: true
-        verbose_name:
-          type: string
-          description: Return object's verbose_name
-          readOnly: true
-        verbose_name_plural:
-          type: string
-          description: Return object's plural verbose_name
-          readOnly: true
-        meta_model_name:
-          type: string
-          description: Return internal model name
-          readOnly: true
-        flow_set:
-          type: array
-          items:
-            $ref: '#/components/schemas/FlowSet'
-        source:
-          type: string
-          format: uuid
-        resume_timeout:
-          type: string
-          description: 'Amount of time a user can take to return from the source to
-            continue the flow (Format: hours=-1;minutes=-2;seconds=-3)'
-      required:
-      - component
-      - meta_model_name
-      - name
-      - pk
-      - source
-      - verbose_name
-      - verbose_name_plural
-    SourceStageRequest:
-      type: object
-      description: SourceStage Serializer
-      properties:
-        name:
-          type: string
-          minLength: 1
-        flow_set:
-          type: array
-          items:
-            $ref: '#/components/schemas/FlowSetRequest'
-        source:
-          type: string
-          format: uuid
-        resume_timeout:
-          type: string
-          minLength: 1
-          description: 'Amount of time a user can take to return from the source to
-            continue the flow (Format: hours=-1;minutes=-2;seconds=-3)'
-      required:
-      - name
-      - source
     SourceType:
       type: object
       description: Serializer for SourceType
@@ -44364,7 +43900,7 @@ components:
         messages:
           type: array
           items:
-            $ref: '#/components/schemas/LogEvent'
+            type: string
       required:
       - description
       - duration
@@ -45654,10 +45190,6 @@ components:
           type: string
           description: Get latest version from cache
           readOnly: true
-        version_latest_valid:
-          type: boolean
-          description: Check if latest version is valid
-          readOnly: true
         build_hash:
           type: string
           description: Get build hash, if version is not latest or released
@@ -45671,7 +45203,6 @@ components:
       - outdated
       - version_current
       - version_latest
-      - version_latest_valid
     WebAuthnDevice:
       type: object
       description: Serializer for WebAuthn authenticator devices

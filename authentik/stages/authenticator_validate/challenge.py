@@ -1,6 +1,7 @@
 """Validation stage challenge checking"""
 
 from json import loads
+from typing import Optional
 from urllib.parse import urlencode
 
 from django.http import HttpRequest
@@ -72,7 +73,7 @@ def get_webauthn_challenge_without_user(
 
 
 def get_webauthn_challenge(
-    request: HttpRequest, stage: AuthenticatorValidateStage, device: WebAuthnDevice | None = None
+    request: HttpRequest, stage: AuthenticatorValidateStage, device: Optional[WebAuthnDevice] = None
 ) -> dict:
     """Send the client a challenge that we'll check later"""
     request.session.pop(SESSION_KEY_WEBAUTHN_CHALLENGE, None)
@@ -120,9 +121,7 @@ def validate_challenge_code(code: str, stage_view: StageView, user: User) -> Dev
             stage=stage_view.executor.current_stage,
             device_class=DeviceClasses.TOTP.value,
         )
-        raise ValidationError(
-            _("Invalid Token. Please ensure the time on your device is accurate and try again.")
-        )
+        raise ValidationError(_("Invalid Token"))
     return device
 
 
@@ -193,11 +192,10 @@ def validate_challenge_duo(device_pk: int, stage_view: StageView, user: User) ->
             user_id=device.duo_user_id,
             ipaddr=ClientIPMiddleware.get_client_ip(stage_view.request),
             type=__(
-                "{brand_name} Login request".format_map(
-                    {
-                        "brand_name": stage_view.request.brand.branding_title,
-                    }
-                )
+                "%(brand_name)s Login request"
+                % {
+                    "brand_name": stage_view.request.brand.branding_title,
+                }
             ),
             display_username=user.username,
             device="auto",
@@ -222,4 +220,4 @@ def validate_challenge_duo(device_pk: int, stage_view: StageView, user: User) ->
             message=f"Failed to DUO authenticate user: {str(exc)}",
             user=user,
         ).from_http(stage_view.request, user)
-        raise ValidationError("Duo denied access", code="denied") from exc
+        raise ValidationError("Duo denied access", code="denied")

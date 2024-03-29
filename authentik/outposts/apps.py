@@ -30,8 +30,7 @@ class AuthentikOutpostConfig(ManagedAppConfig):
     verbose_name = "authentik Outpost"
     default = True
 
-    @ManagedAppConfig.reconcile_tenant
-    def embedded_outpost(self):
+    def reconcile_tenant_embedded_outpost(self):
         """Ensure embedded outpost"""
         from authentik.outposts.models import (
             DockerServiceConnection,

@@ -15,7 +15,7 @@ import "@goauthentik/elements/forms/HorizontalFormElement";
 import "@goauthentik/elements/forms/SearchSelect";
 
 import { msg } from "@lit/localize";
-import { PropertyValues, TemplateResult, html } from "lit";
+import { TemplateResult, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ifDefined } from "lit/directives/if-defined.js";
 
@@ -40,8 +40,22 @@ export class OAuthSourceForm extends WithCapabilitiesConfig(BaseSourceForm<OAuth
         return source;
     }
 
+    _modelName?: string;
+
     @property()
-    modelName?: string;
+    set modelName(v: string | undefined) {
+        this._modelName = v;
+        new SourcesApi(DEFAULT_CONFIG)
+            .sourcesOauthSourceTypesList({
+                name: v?.replace("oauthsource", ""),
+            })
+            .then((type) => {
+                this.providerType = type[0];
+            });
+    }
+    get modelName(): string | undefined {
+        return this._modelName;
+    }
 
     @property({ attribute: false })
     providerType: SourceType | null = null;
@@ -81,22 +95,6 @@ export class OAuthSourceForm extends WithCapabilitiesConfig(BaseSourceForm<OAuth
             });
         }
         return source;
-    }
-
-    fetchProviderType(v: string | undefined) {
-        new SourcesApi(DEFAULT_CONFIG)
-            .sourcesOauthSourceTypesList({
-                name: v?.replace("oauthsource", ""),
-            })
-            .then((type) => {
-                this.providerType = type[0];
-            });
-    }
-
-    willUpdate(changedProperties: PropertyValues<this>) {
-        if (changedProperties.has("modelName")) {
-            this.fetchProviderType(this.modelName);
-        }
     }
 
     renderUrlOptions(): TemplateResult {

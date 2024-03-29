@@ -146,7 +146,7 @@ class PropertyMappingViewSet(
             response_data["result"] = dumps(
                 sanitize_item(result), indent=(4 if format_result else None)
             )
-        except Exception as exc:
+        except Exception as exc:  # pylint: disable=broad-except
             response_data["result"] = str(exc)
             response_data["successful"] = False
         response = PropertyMappingTestResultSerializer(response_data)

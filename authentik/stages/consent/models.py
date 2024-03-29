@@ -37,7 +37,7 @@ class ConsentStage(Stage):
         return ConsentStageSerializer
 
     @property
-    def view(self) -> type[View]:
+    def type(self) -> type[View]:
         from authentik.stages.consent.stage import ConsentStageView
 
         return ConsentStageView
