@@ -1,4 +1,5 @@
 import "@goauthentik/admin/providers/scim/SCIMProviderForm";
+import "@goauthentik/app/elements/rbac/ObjectPermissionsPage";
 import { DEFAULT_CONFIG } from "@goauthentik/common/api/config";
 import { EVENT_REFRESH } from "@goauthentik/common/constants";
 import "@goauthentik/components/events/ObjectChangelog";
@@ -8,11 +9,9 @@ import "@goauthentik/elements/Markdown";
 import "@goauthentik/elements/Tabs";
 import "@goauthentik/elements/buttons/ActionButton";
 import "@goauthentik/elements/buttons/ModalButton";
-import "@goauthentik/elements/events/LogViewer";
-import "@goauthentik/elements/rbac/ObjectPermissionsPage";
 
 import { msg, str } from "@lit/localize";
-import { CSSResult, PropertyValues, TemplateResult, html } from "lit";
+import { CSSResult, TemplateResult, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
 import PFBanner from "@patternfly/patternfly/components/Banner/banner.css";
@@ -38,10 +37,21 @@ import {
 
 @customElement("ak-provider-scim-view")
 export class SCIMProviderViewPage extends AKElement {
-    @property({ type: Number })
-    providerID?: number;
+    @property()
+    set args(value: { [key: string]: number }) {
+        this.providerID = value.id;
+    }
 
-    @state()
+    @property({ type: Number })
+    set providerID(value: number) {
+        new ProvidersApi(DEFAULT_CONFIG)
+            .providersScimRetrieve({
+                id: value,
+            })
+            .then((prov) => (this.provider = prov));
+    }
+
+    @property({ attribute: false })
     provider?: SCIMProvider;
 
     @state()
@@ -70,18 +80,6 @@ export class SCIMProviderViewPage extends AKElement {
             if (!this.provider?.pk) return;
             this.providerID = this.provider?.pk;
         });
-    }
-
-    fetchProvider(id: number) {
-        new ProvidersApi(DEFAULT_CONFIG)
-            .providersScimRetrieve({ id })
-            .then((prov) => (this.provider = prov));
-    }
-
-    willUpdate(changedProperties: PropertyValues<this>) {
-        if (changedProperties.has("providerID") && this.providerID) {
-            this.fetchProvider(this.providerID);
-        }
     }
 
     render(): TemplateResult {
@@ -156,7 +154,9 @@ export class SCIMProviderViewPage extends AKElement {
                         <p>${task.name}</p>
                         <ul class="pf-c-list">
                             <li>${header}</li>
-                            <ak-log-viewer .logs=${task?.messages}></ak-log-viewer>
+                            ${task.messages.map((m) => {
+                                return html`<li>${m}</li>`;
+                            })}
                         </ul>
                     </li> `;
                 })}
@@ -249,10 +249,7 @@ export class SCIMProviderViewPage extends AKElement {
                 </div>
                 <div class="pf-c-card pf-l-grid__item pf-m-5-col">
                     <div class="pf-c-card__body">
-                        <ak-markdown
-                            .md=${MDSCIMProvider}
-                            meta="providers/scim/index.md"
-                        ></ak-markdown>
+                        <ak-markdown .md=${MDSCIMProvider}></ak-markdown>
                     </div>
                 </div>
             </div>`;

@@ -37,10 +37,6 @@ export class FlowInspector extends AKElement {
             PFDescriptionList,
             PFProgressStepper,
             css`
-                .pf-c-drawer__body {
-                    min-height: 100vh;
-                    max-height: 100vh;
-                }
                 code.break {
                     word-break: break-all;
                 }
@@ -48,6 +44,9 @@ export class FlowInspector extends AKElement {
                     word-break: break-all;
                     overflow-x: hidden;
                     white-space: break-spaces;
+                }
+                .pf-c-notification-drawer__body {
+                    overflow-x: hidden;
                 }
             `,
         ];
@@ -114,7 +113,6 @@ export class FlowInspector extends AKElement {
             return this.renderAccessDenied();
         }
         if (!this.state) {
-            this.advanceHandler();
             return html`<ak-empty-state ?loading="${true}" header=${msg("Loading")}>
             </ak-empty-state>`;
         }

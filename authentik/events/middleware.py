@@ -1,11 +1,8 @@
 """Events middleware"""
 
-from collections.abc import Callable
-from contextlib import contextmanager
-from contextvars import ContextVar
 from functools import partial
 from threading import Thread
-from typing import Any
+from typing import Any, Callable, Optional
 
 from django.conf import settings
 from django.contrib.sessions.models import Session
@@ -33,9 +30,6 @@ IGNORED_MODELS = tuple(
     )
 )
 
-_CTX_OVERWRITE_USER = ContextVar[User | None]("authentik_events_log_overwrite_user", default=None)
-_CTX_IGNORE = ContextVar[bool]("authentik_events_log_ignore", default=False)
-
 
 def should_log_model(model: Model) -> bool:
     """Return true if operation on `model` should be logged"""
@@ -49,37 +43,15 @@ def should_log_m2m(model: Model) -> bool:
     return False
 
 
-@contextmanager
-def audit_overwrite_user(user: User):
-    """Overwrite user being logged for model AuditMiddleware. Commonly used
-    for example in flows where a pending user is given, but the request is not authenticated yet"""
-    _CTX_OVERWRITE_USER.set(user)
-    try:
-        yield
-    finally:
-        _CTX_OVERWRITE_USER.set(None)
-
-
-@contextmanager
-def audit_ignore():
-    """Ignore model operations in the block. Useful for objects which need to be modified
-    but are not excluded (e.g. WebAuthn devices)"""
-    _CTX_IGNORE.set(True)
-    try:
-        yield
-    finally:
-        _CTX_IGNORE.set(False)
-
-
 class EventNewThread(Thread):
     """Create Event in background thread"""
 
     action: str
     request: HttpRequest
     kwargs: dict[str, Any]
-    user: User | None = None
+    user: Optional[User] = None
 
-    def __init__(self, action: str, request: HttpRequest, user: User | None = None, **kwargs):
+    def __init__(self, action: str, request: HttpRequest, user: Optional[User] = None, **kwargs):
         super().__init__()
         self.action = action
         self.request = request
@@ -172,6 +144,7 @@ class AuditMiddleware:
             )
             thread.run()
 
+    # pylint: disable=too-many-arguments
     def post_save_handler(
         self,
         user: User,
@@ -179,16 +152,12 @@ class AuditMiddleware:
         sender,
         instance: Model,
         created: bool,
-        thread_kwargs: dict | None = None,
+        thread_kwargs: Optional[dict] = None,
         **_,
     ):
         """Signal handler for all object's post_save"""
         if not should_log_model(instance):
             return
-        if _CTX_IGNORE.get():
-            return
-        if _new_user := _CTX_OVERWRITE_USER.get():
-            user = _new_user
 
         action = EventAction.MODEL_CREATED if created else EventAction.MODEL_UPDATED
         thread = EventNewThread(action, request, user=user, model=model_to_dict(instance))
@@ -199,10 +168,6 @@ class AuditMiddleware:
         """Signal handler for all object's pre_delete"""
         if not should_log_model(instance):  # pragma: no cover
             return
-        if _CTX_IGNORE.get():
-            return
-        if _new_user := _CTX_OVERWRITE_USER.get():
-            user = _new_user
 
         EventNewThread(
             EventAction.MODEL_DELETED,
@@ -219,10 +184,6 @@ class AuditMiddleware:
             return
         if not should_log_m2m(instance):
             return
-        if _CTX_IGNORE.get():
-            return
-        if _new_user := _CTX_OVERWRITE_USER.get():
-            user = _new_user
 
         EventNewThread(
             EventAction.MODEL_UPDATED,

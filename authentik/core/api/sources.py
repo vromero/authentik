@@ -1,6 +1,6 @@
 """Source API Views"""
 
-from collections.abc import Iterable
+from typing import Iterable
 
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import OpenApiResponse, extend_schema

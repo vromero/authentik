@@ -1,17 +1,19 @@
+const fs = require("fs").promises;
 import type { Config } from "@docusaurus/types";
 import type * as Preset from "@docusaurus/preset-classic";
-import { themes as prismThemes } from "prism-react-renderer";
 
 module.exports = async function (): Promise<Config> {
     const remarkGithub = (await import("remark-github")).default;
     const defaultBuildUrl = (await import("remark-github")).defaultBuildUrl;
+    const footerEmail = await fs.readFile("src/footer.html", {
+        encoding: "utf-8",
+    });
     return {
         title: "authentik",
         tagline: "Bring all of your authentication into a unified platform.",
-        url: "https://docs.goauthentik.io",
+        url: "https://goauthentik.io",
         baseUrl: "/",
         onBrokenLinks: "throw",
-        onBrokenAnchors: "throw",
         favicon: "img/icon.png",
         organizationName: "Authentik Security Inc.",
         projectName: "authentik",
@@ -21,16 +23,9 @@ module.exports = async function (): Promise<Config> {
                 logo: {
                     alt: "authentik logo",
                     src: "img/icon_left_brand.svg",
-                    href: "https://goauthentik.io/",
-                    target: "_self",
                 },
                 items: [
-                    {
-                        to: "https://goauthentik.io/blog",
-                        label: "Blog",
-                        position: "left",
-                        target: "_self",
-                    },
+                    { to: "blog", label: "Blog", position: "left" },
                     {
                         to: "docs/",
                         label: "Docs",
@@ -47,10 +42,9 @@ module.exports = async function (): Promise<Config> {
                         position: "left",
                     },
                     {
-                        to: "https://goauthentik.io/pricing/",
+                        to: "pricing/",
                         label: "Pricing",
                         position: "left",
-                        target: "_self",
                     },
                     {
                         href: "https://github.com/goauthentik/authentik",
@@ -67,7 +61,68 @@ module.exports = async function (): Promise<Config> {
                 ],
             },
             footer: {
-                links: [],
+                links: [
+                    {
+                        title: "Subscribe to authentik News",
+                        items: [
+                            {
+                                html: footerEmail,
+                            },
+                        ],
+                    },
+                    {
+                        title: "Documentation",
+                        items: [
+                            {
+                                label: "Documentation",
+                                to: "docs/",
+                            },
+                            {
+                                label: "Integrations",
+                                to: "integrations/",
+                            },
+                            {
+                                label: "Developer Documentation",
+                                to: "developer-docs/",
+                            },
+                            {
+                                label: "Installations",
+                                to: "docs/installation/",
+                            },
+                        ],
+                    },
+                    {
+                        title: "More",
+                        items: [
+                            {
+                                to: "jobs/",
+                                label: "Jobs",
+                                position: "left",
+                            },
+                            {
+                                label: "GitHub",
+                                href: "https://github.com/goauthentik/authentik",
+                            },
+                            {
+                                label: "Discord",
+                                href: "https://goauthentik.io/discord",
+                            },
+                        ],
+                    },
+                    {
+                        title: "Legal",
+                        items: [
+                            {
+                                to: "legal/terms",
+                                label: "Terms & Conditions",
+                            },
+                            {
+                                to: "legal/privacy-policy",
+                                label: "Privacy policy",
+                            },
+                        ],
+                    },
+                ],
                 copyright: `Copyright © ${new Date().getFullYear()} Authentik Security Inc. Built with Docusaurus.`,
             },
             tableOfContents: {
@@ -82,8 +137,6 @@ module.exports = async function (): Promise<Config> {
                 indexName: "goauthentik",
             },
             prism: {
-                theme: prismThemes.oneLight,
-                darkTheme: prismThemes.oneDark,
                 additionalLanguages: ["python", "diff", "json"],
             },
         },
@@ -115,18 +168,16 @@ module.exports = async function (): Promise<Config> {
                     theme: {
                         customCss: require.resolve("./src/css/custom.css"),
                     },
+                    gtag: {
+                        trackingID: "G-9MVR9WZFZH",
+                        anonymizeIP: true,
+                    },
+                    blog: {
+                        showReadingTime: true,
+                        blogSidebarTitle: "All our posts",
+                        blogSidebarCount: "ALL",
+                    },
                 } satisfies Preset.Options,
-            ],
-            [
-                "redocusaurus",
-                {
-                    specs: [
-                        {
-                            id: "main",
-                            spec: "static/schema.yaml",
-                        },
-                    ],
-                },
             ],
         ],
         plugins: [
@@ -157,5 +208,15 @@ module.exports = async function (): Promise<Config> {
             mermaid: true,
         },
         themes: ["@docusaurus/theme-mermaid"],
+        scripts: [
+            {
+                src: "https://goauthentik.io/js/script.js",
+                async: true,
+                "data-domain": "goauthentik.io",
+            },
+            {
+                src: "https://boards.greenhouse.io/embed/job_board/js?for=authentiksecurity",
+            },
+        ],
     };
 };

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-16 00:07+0000\n"
+"POT-Creation-Date: 2024-02-14 18:51+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,8 +31,8 @@ msgid "Blueprint file does not exist"
 msgstr ""
 
 #: authentik/blueprints/api.py
-#, python-brace-format
-msgid "Failed to validate blueprint: {logs}"
+#, python-format
+msgid "Failed to validate blueprint: %(logs)s"
 msgstr ""
 
 #: authentik/blueprints/api.py
@@ -60,8 +60,8 @@ msgid "Blueprint Instances"
 msgstr ""
 
 #: authentik/blueprints/v1/exporter.py
-#, python-brace-format
-msgid "authentik Export - {date}"
+#, python-format
+msgid "authentik Export - %(date)s"
 msgstr ""
 
 #: authentik/blueprints/v1/tasks.py authentik/crypto/tasks.py
@@ -117,14 +117,6 @@ msgstr ""
 
 #: authentik/core/models.py
 msgid "Groups"
-msgstr ""
-
-#: authentik/core/models.py
-msgid "Add user to group"
-msgstr ""
-
-#: authentik/core/models.py
-msgid "Remove user from group"
 msgstr ""
 
 #: authentik/core/models.py
@@ -279,9 +271,9 @@ msgid "Authenticated Sessions"
 msgstr ""
 
 #: authentik/core/sources/flow_manager.py
-#, python-brace-format
+#, python-format
 msgid ""
-"Request to authenticate with {source} has been denied. Please authenticate "
+"Request to authenticate with %(source)s has been denied. Please authenticate "
 "with the source you've previously signed up with."
 msgstr ""
 
@@ -290,13 +282,13 @@ msgid "Configured flow does not exist."
 msgstr ""
 
 #: authentik/core/sources/flow_manager.py
-#, python-brace-format
-msgid "Successfully authenticated with {source}!"
+#, python-format
+msgid "Successfully authenticated with %(source)s!"
 msgstr ""
 
 #: authentik/core/sources/flow_manager.py
-#, python-brace-format
-msgid "Successfully linked {source}!"
+#, python-format
+msgid "Successfully linked %(source)s!"
 msgstr ""
 
 #: authentik/core/sources/flow_manager.py
@@ -460,23 +452,9 @@ msgstr ""
 msgid "(You are already connected in another tab/window)"
 msgstr ""
 
-#: authentik/enterprise/stages/source/models.py
-msgid ""
-"Amount of time a user can take to return from the source to continue the "
-"flow (Format: hours=-1;minutes=-2;seconds=-3)"
-msgstr ""
-
-#: authentik/enterprise/stages/source/models.py
-msgid "Source Stage"
-msgstr ""
-
-#: authentik/enterprise/stages/source/models.py
-msgid "Source Stages"
-msgstr ""
-
 #: authentik/events/api/tasks.py
-#, python-brace-format
-msgid "Successfully started task {name}."
+#, python-format
+msgid "Successfully started task %(name)s."
 msgstr ""
 
 #: authentik/events/models.py
@@ -598,18 +576,18 @@ msgid "Task has not been run yet."
 msgstr ""
 
 #: authentik/flows/api/flows.py
-#, python-brace-format
-msgid "Flow not applicable to current user/request: {messages}"
+#, python-format
+msgid "Flow not applicable to current user/request: %(messages)s"
 msgstr ""
 
 #: authentik/flows/api/flows_diagram.py
-#, python-brace-format
-msgid "Policy ({type})"
+#, python-format
+msgid "Policy (%(type)s)"
 msgstr ""
 
 #: authentik/flows/api/flows_diagram.py
-#, python-brace-format
-msgid "Binding {order}"
+#, python-format
+msgid "Binding %(order)d"
 msgstr ""
 
 #: authentik/flows/api/flows_diagram.py
@@ -617,8 +595,8 @@ msgid "Policy passed"
 msgstr ""
 
 #: authentik/flows/api/flows_diagram.py
-#, python-brace-format
-msgid "Stage ({type})"
+#, python-format
+msgid "Stage (%(type)s)"
 msgstr ""
 
 #: authentik/flows/api/flows_diagram.py
@@ -654,8 +632,8 @@ msgid "Flow does not apply to current user."
 msgstr ""
 
 #: authentik/flows/models.py
-#, python-brace-format
-msgid "Dynamic In-memory stage: {doc}"
+#, python-format
+msgid "Dynamic In-memory stage: %(doc)s"
 msgstr ""
 
 #: authentik/flows/models.py
@@ -746,10 +724,6 @@ msgstr ""
 
 #: authentik/flows/models.py
 msgid "Flow Tokens"
-msgstr ""
-
-#: authentik/flows/views/executor.py
-msgid "Invalid next URL"
 msgstr ""
 
 #: authentik/lib/utils/time.py
@@ -1343,8 +1317,8 @@ msgstr ""
 
 #: authentik/providers/oauth2/views/authorize.py
 #: authentik/providers/saml/views/flows.py
-#, python-brace-format
-msgid "Redirecting to {app}..."
+#, python-format
+msgid "Redirecting to %(app)s..."
 msgstr ""
 
 #: authentik/providers/oauth2/views/device_init.py
@@ -1461,8 +1435,8 @@ msgid "Invalid XML Syntax"
 msgstr ""
 
 #: authentik/providers/saml/api/providers.py
-#, python-brace-format
-msgid "Failed to import Metadata: {messages}"
+#, python-format
+msgid "Failed to import Metadata: %(message)s"
 msgstr ""
 
 #: authentik/providers/saml/models.py
@@ -1634,18 +1608,18 @@ msgid "Syncing page %(page)d of groups"
 msgstr ""
 
 #: authentik/providers/scim/tasks.py
-#, python-brace-format
-msgid "Failed to sync user {user_name} due to remote error: {error}"
+#, python-format
+msgid "Failed to sync user %(user_name)s due to remote error: %(error)s"
 msgstr ""
 
 #: authentik/providers/scim/tasks.py
-#, python-brace-format
-msgid "Stopping sync due to error: {error}"
+#, python-format
+msgid "Stopping sync due to error: %(error)s"
 msgstr ""
 
 #: authentik/providers/scim/tasks.py
-#, python-brace-format
-msgid "Failed to sync group {group_name} due to remote error: {error}"
+#, python-format
+msgid "Failed to sync group %(group_name)s due to remote error: %(error)s"
 msgstr ""
 
 #: authentik/rbac/models.py
@@ -1764,10 +1738,6 @@ msgid "Field which contains a unique Identifier."
 msgstr ""
 
 #: authentik/sources/ldap/models.py
-msgid "Update internal authentik password when login succeeds with LDAP"
-msgstr ""
-
-#: authentik/sources/ldap/models.py
 msgid ""
 "When a user changes their password, sync it back to LDAP. This can only be "
 "enabled on a single LDAP source."
@@ -1848,14 +1818,6 @@ msgstr ""
 
 #: authentik/sources/oauth/models.py
 msgid "GitHub OAuth Sources"
-msgstr ""
-
-#: authentik/sources/oauth/models.py
-msgid "GitLab OAuth Source"
-msgstr ""
-
-#: authentik/sources/oauth/models.py
-msgid "GitLab OAuth Sources"
 msgstr ""
 
 #: authentik/sources/oauth/models.py
@@ -1963,8 +1925,8 @@ msgid "User OAuth Source Connections"
 msgstr ""
 
 #: authentik/sources/oauth/views/callback.py
-#, python-brace-format
-msgid "Authentication failed: {reason}"
+#, python-format
+msgid "Authentication failed: %(reason)s"
 msgstr ""
 
 #: authentik/sources/plex/models.py
@@ -2083,14 +2045,6 @@ msgstr ""
 msgid "User SAML Source Connections"
 msgstr ""
 
-#: authentik/sources/scim/models.py
-msgid "SCIM Source"
-msgstr ""
-
-#: authentik/sources/scim/models.py
-msgid "SCIM Sources"
-msgstr ""
-
 #: authentik/stages/authenticator_duo/models.py
 msgid "Duo Authenticator Setup Stage"
 msgstr ""
@@ -2119,8 +2073,8 @@ msgid "Optionally modify the payload being sent to custom providers."
 msgstr ""
 
 #: authentik/stages/authenticator_sms/models.py
-#, python-brace-format
-msgid "Use this code to authenticate in authentik: {token}"
+#, python-format
+msgid "Use this code to authenticate in authentik: %(token)s"
 msgstr ""
 
 #: authentik/stages/authenticator_sms/models.py
@@ -2197,15 +2151,7 @@ msgid "TOTP Devices"
 msgstr ""
 
 #: authentik/stages/authenticator_validate/challenge.py
-msgid ""
-"Invalid Token. Please ensure the time on your device is accurate and try "
-"again."
-msgstr ""
-
-#: authentik/stages/authenticator_validate/challenge.py
-#: authentik/stages/authenticator_webauthn/stage.py
-#, python-brace-format
-msgid "Invalid device type. Contact your {brand} administrator for help."
+msgid "Invalid Token"
 msgstr ""
 
 #: authentik/stages/authenticator_validate/models.py
@@ -2257,10 +2203,6 @@ msgstr ""
 msgid "Authenticator Validation Stages"
 msgstr ""
 
-#: authentik/stages/authenticator_validate/stage.py
-msgid "No (allowed) MFA authenticator configured."
-msgstr ""
-
 #: authentik/stages/authenticator_webauthn/models.py
 msgid "WebAuthn Authenticator Setup Stage"
 msgstr ""
@@ -2275,14 +2217,6 @@ msgstr ""
 
 #: authentik/stages/authenticator_webauthn/models.py
 msgid "WebAuthn Devices"
-msgstr ""
-
-#: authentik/stages/authenticator_webauthn/models.py
-msgid "WebAuthn Device type"
-msgstr ""
-
-#: authentik/stages/authenticator_webauthn/models.py
-msgid "WebAuthn Device types"
 msgstr ""
 
 #: authentik/stages/captcha/models.py
@@ -2865,14 +2799,6 @@ msgstr ""
 
 #: authentik/tenants/models.py
 msgid "Globally enable/disable impersonation."
-msgstr ""
-
-#: authentik/tenants/models.py
-msgid "Default token duration"
-msgstr ""
-
-#: authentik/tenants/models.py
-msgid "Default token length"
 msgstr ""
 
 #: authentik/tenants/models.py

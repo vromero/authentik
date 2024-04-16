@@ -1,6 +1,6 @@
 """Property Mapping Evaluator"""
 
-from typing import Any
+from typing import Any, Optional
 
 from django.db.models import Model
 from django.http import HttpRequest
@@ -27,9 +27,9 @@ class PropertyMappingEvaluator(BaseEvaluator):
     def __init__(
         self,
         model: Model,
-        user: User | None = None,
-        request: HttpRequest | None = None,
-        dry_run: bool | None = False,
+        user: Optional[User] = None,
+        request: Optional[HttpRequest] = None,
+        dry_run: Optional[bool] = False,
         **kwargs,
     ):
         if hasattr(model, "name"):

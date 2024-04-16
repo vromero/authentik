@@ -55,8 +55,8 @@ def wait_for_lock(cursor: Cursor):
     """lock an advisory lock to prevent multiple instances from migrating at once"""
     LOGGER.info("waiting to acquire database lock")
     cursor.execute("SELECT pg_advisory_lock(%s)", (ADV_LOCK_UID,))
-
-    global LOCKED  # noqa: PLW0603
+    # pylint: disable=global-statement
+    global LOCKED
     LOCKED = True
 
 
@@ -68,7 +68,7 @@ def release_lock(cursor: Cursor):
     cursor.execute("SELECT pg_advisory_unlock(%s)", (ADV_LOCK_UID,))
 
 
-def run_migrations():
+if __name__ == "__main__":
     conn = connect(
         dbname=CONFIG.get("postgresql.name"),
         user=CONFIG.get("postgresql.user"),
@@ -117,7 +117,3 @@ def run_migrations():
         )
     finally:
         release_lock(curr)
-
-
-if __name__ == "__main__":
-    run_migrations()

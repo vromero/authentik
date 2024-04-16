@@ -1,19 +1,15 @@
 """Groups API Viewset"""
 
 from json import loads
+from typing import Optional
 
 from django.http import Http404
 from django_filters.filters import CharFilter, ModelMultipleChoiceFilter
 from django_filters.filterset import FilterSet
-from drf_spectacular.utils import (
-    OpenApiParameter,
-    OpenApiResponse,
-    extend_schema,
-    extend_schema_field,
-)
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from guardian.shortcuts import get_objects_for_user
 from rest_framework.decorators import action
-from rest_framework.fields import CharField, IntegerField, SerializerMethodField
+from rest_framework.fields import CharField, IntegerField
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import ListSerializer, ModelSerializer, ValidationError
@@ -50,7 +46,9 @@ class GroupSerializer(ModelSerializer):
     """Group Serializer"""
 
     attributes = JSONDictField(required=False)
-    users_obj = SerializerMethodField(allow_null=True)
+    users_obj = ListSerializer(
+        child=GroupMemberSerializer(), read_only=True, source="users", required=False
+    )
     roles_obj = ListSerializer(
         child=RoleSerializer(),
         read_only=True,
@@ -61,20 +59,7 @@ class GroupSerializer(ModelSerializer):
 
     num_pk = IntegerField(read_only=True)
 
-    @property
-    def _should_include_users(self) -> bool:
-        request: Request = self.context.get("request", None)
-        if not request:
-            return True
-        return str(request.query_params.get("include_users", "true")).lower() == "true"
-
-    @extend_schema_field(GroupMemberSerializer(many=True))
-    def get_users_obj(self, instance: Group) -> list[GroupMemberSerializer] | None:
-        if not self._should_include_users:
-            return None
-        return GroupMemberSerializer(instance.users, many=True).data
-
-    def validate_parent(self, parent: Group | None):
+    def validate_parent(self, parent: Optional[Group]):
         """Validate group parent (if set), ensuring the parent isn't itself"""
         if not self.instance or not parent:
             return parent
@@ -129,7 +114,7 @@ class GroupFilter(FilterSet):
         try:
             value = loads(value)
         except ValueError:
-            raise ValidationError(detail="filter: failed to parse JSON") from None
+            raise ValidationError(detail="filter: failed to parse JSON")
         if not isinstance(value, dict):
             raise ValidationError(detail="filter: value must be key:value mapping")
         qs = {}
@@ -146,29 +131,23 @@ class GroupFilter(FilterSet):
         fields = ["name", "is_superuser", "members_by_pk", "attributes", "members_by_username"]
 
 
+class UserAccountSerializer(PassiveSerializer):
+    """Account adding/removing operations"""
+
+    pk = IntegerField(required=True)
+
+
 class GroupViewSet(UsedByMixin, ModelViewSet):
     """Group Viewset"""
 
-    class UserAccountSerializer(PassiveSerializer):
-        """Account adding/removing operations"""
-
-        pk = IntegerField(required=True)
-
+    # pylint: disable=no-member
     queryset = Group.objects.all().select_related("parent").prefetch_related("users")
     serializer_class = GroupSerializer
     search_fields = ["name", "is_superuser"]
     filterset_class = GroupFilter
     ordering = ["name"]
 
-    @extend_schema(
-        parameters=[
-            OpenApiParameter("include_users", bool, default=True),
-        ]
-    )
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @permission_required("authentik_core.add_user_to_group")
+    @permission_required(None, ["authentik_core.add_user"])
     @extend_schema(
         request=UserAccountSerializer,
         responses={
@@ -176,13 +155,7 @@ class GroupViewSet(UsedByMixin, ModelViewSet):
             404: OpenApiResponse(description="User not found"),
         },
     )
-    @action(
-        detail=True,
-        methods=["POST"],
-        pagination_class=None,
-        filter_backends=[],
-        permission_classes=[],
-    )
+    @action(detail=True, methods=["POST"], pagination_class=None, filter_backends=[])
     def add_user(self, request: Request, pk: str) -> Response:
         """Add user to group"""
         group: Group = self.get_object()
@@ -198,7 +171,7 @@ class GroupViewSet(UsedByMixin, ModelViewSet):
         group.users.add(user)
         return Response(status=204)
 
-    @permission_required("authentik_core.remove_user_from_group")
+    @permission_required(None, ["authentik_core.add_user"])
     @extend_schema(
         request=UserAccountSerializer,
         responses={
@@ -206,13 +179,7 @@ class GroupViewSet(UsedByMixin, ModelViewSet):
             404: OpenApiResponse(description="User not found"),
         },
     )
-    @action(
-        detail=True,
-        methods=["POST"],
-        pagination_class=None,
-        filter_backends=[],
-        permission_classes=[],
-    )
+    @action(detail=True, methods=["POST"], pagination_class=None, filter_backends=[])
     def remove_user(self, request: Request, pk: str) -> Response:
         """Add user to group"""
         group: Group = self.get_object()

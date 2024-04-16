@@ -47,4 +47,3 @@ class FlowStageBindingViewSet(UsedByMixin, ModelViewSet):
     filterset_fields = "__all__"
     search_fields = ["stage__name"]
     ordering = ["order"]
-    ordering_fields = ["order", "stage__name"]

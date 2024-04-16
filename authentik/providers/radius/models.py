@@ -1,5 +1,7 @@
 """Radius Provider"""
 
+from typing import Optional, Type
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from rest_framework.serializers import Serializer
@@ -38,7 +40,7 @@ class RadiusProvider(OutpostModel, Provider):
     )
 
     @property
-    def launch_url(self) -> str | None:
+    def launch_url(self) -> Optional[str]:
         """Radius never has a launch URL"""
         return None
 
@@ -47,7 +49,7 @@ class RadiusProvider(OutpostModel, Provider):
         return "ak-provider-radius-form"
 
     @property
-    def serializer(self) -> type[Serializer]:
+    def serializer(self) -> Type[Serializer]:
         from authentik.providers.radius.api import RadiusProviderSerializer
 
         return RadiusProviderSerializer

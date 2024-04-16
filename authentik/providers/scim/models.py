@@ -104,9 +104,6 @@ class SCIMUser(models.Model):
     class Meta:
         unique_together = (("id", "user", "provider"),)
 
-    def __str__(self) -> str:
-        return f"SCIM User {self.user.username} to {self.provider.name}"
-
 
 class SCIMGroup(models.Model):
     """Mapping of a group and provider to a SCIM user ID"""
@@ -117,6 +114,3 @@ class SCIMGroup(models.Model):
 
     class Meta:
         unique_together = (("id", "group", "provider"),)
-
-    def __str__(self) -> str:
-        return f"SCIM Group {self.group.name} to {self.provider.name}"

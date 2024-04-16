@@ -48,6 +48,7 @@ jobs:
       matrix:
         job:
           - build
+          - build-docs-only
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

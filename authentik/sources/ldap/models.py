@@ -5,6 +5,7 @@ from os.path import dirname, exists
 from shutil import rmtree
 from ssl import CERT_REQUIRED
 from tempfile import NamedTemporaryFile, mkdtemp
+from typing import Optional
 
 from django.core.cache import cache
 from django.db import connection, models
@@ -98,11 +99,6 @@ class LDAPSource(Source):
         help_text=_("Property mappings used for group creation/updating."),
     )
 
-    password_login_update_internal_password = models.BooleanField(
-        default=False,
-        help_text=_("Update internal authentik password when login succeeds with LDAP"),
-    )
-
     sync_users = models.BooleanField(default=True)
     sync_users_password = models.BooleanField(
         default=True,
@@ -164,9 +160,9 @@ class LDAPSource(Source):
 
     def connection(
         self,
-        server: Server | None = None,
-        server_kwargs: dict | None = None,
-        connection_kwargs: dict | None = None,
+        server: Optional[Server] = None,
+        server_kwargs: Optional[dict] = None,
+        connection_kwargs: Optional[dict] = None,
     ) -> Connection:
         """Get a fully connected and bound LDAP Connection"""
         server_kwargs = server_kwargs or {}

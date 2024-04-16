@@ -24,7 +24,7 @@ class CaptchaStage(Stage):
         return CaptchaStageSerializer
 
     @property
-    def view(self) -> type[View]:
+    def type(self) -> type[View]:
         from authentik.stages.captcha.stage import CaptchaStageView
 
         return CaptchaStageView

@@ -28,7 +28,6 @@ export class UserTokenForm extends ModelForm<Token, string> {
 
     async send(data: Token): Promise<Token> {
         if (this.instance) {
-            data.intent = this.instance.intent;
             return new CoreApi(DEFAULT_CONFIG).coreTokensUpdate({
                 identifier: this.instance.identifier,
                 tokenRequest: data,
@@ -42,14 +41,6 @@ export class UserTokenForm extends ModelForm<Token, string> {
     }
 
     renderForm(): TemplateResult {
-        const now = new Date();
-        const expiringDate = this.instance?.expires
-            ? new Date(
-                  this.instance.expires.getTime() -
-                      this.instance.expires.getTimezoneOffset() * 60000,
-              )
-            : new Date(now.getTime() + 30 * 60000 - now.getTimezoneOffset() * 60000);
-
         return html` <ak-form-element-horizontal
                 label=${msg("Identifier")}
                 ?required=${true}
@@ -68,16 +59,6 @@ export class UserTokenForm extends ModelForm<Token, string> {
                     value="${ifDefined(this.instance?.description)}"
                     class="pf-c-form-control"
                 />
-            </ak-form-element-horizontal>
-            ${this.intent == IntentEnum.AppPassword
-                ? html`<ak-form-element-horizontal label=${msg("Expiring")} name="expires">
-                      <input
-                          type="datetime-local"
-                          value="${expiringDate.toISOString().slice(0, -8)}"
-                          min="${now.toISOString().slice(0, -8)}"
-                          class="pf-c-form-control"
-                      />
-                  </ak-form-element-horizontal>`
-                : html``}`;
+            </ak-form-element-horizontal>`;
     }
 }

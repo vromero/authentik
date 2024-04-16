@@ -1,10 +1,4 @@
 ```
-# Upgrade WebSocket if requested, otherwise use keepalive
-map $http_upgrade $connection_upgrade_keepalive {
-    default upgrade;
-    ''      '';
-}
-
 server {
     # SSL and VHost configuration
     listen                  443 ssl http2;
@@ -24,9 +18,6 @@ server {
         # proxy_pass http://localhost:5000;
         # proxy_set_header Host $host;
         # proxy_set_header ...
-        # Support for websocket
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection $connection_upgrade_keepalive;
 
         ##############################
         # authentik-specific config

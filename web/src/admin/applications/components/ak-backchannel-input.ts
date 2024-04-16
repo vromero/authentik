@@ -20,9 +20,8 @@ export class AkBackchannelProvidersInput extends AKElement {
     // TODO: This abstraction is wrong; it's putting *more* layers in as a way of managing the
     // visual clutter and legibility issues of ak-form-elemental-horizontal and patternfly in
     // general.
-
     protected createRenderRoot() {
-        return this as HTMLElement;
+        return this;
     }
 
     @property({ type: String })
@@ -74,7 +73,7 @@ export class AkBackchannelProvidersInput extends AKElement {
                         <ak-chip-group> ${map(this.providers, renderOneChip)} </ak-chip-group>
                     </div>
                 </div>
-                ${this.help ? html`<p class="pf-c-form__helper-text">${this.help}</p>` : nothing}
+                ${this.help ? html`<p class="pf-c-form__helper-radio">${this.help}</p>` : nothing}
             </ak-form-element-horizontal>
         `;
     }

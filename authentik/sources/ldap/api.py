@@ -1,6 +1,6 @@
 """Source API Views"""
 
-from typing import Any
+from typing import Any, Optional
 
 from django.core.cache import cache
 from django_filters.filters import AllValuesMultipleFilter
@@ -39,7 +39,7 @@ class LDAPSourceSerializer(SourceSerializer):
         required=False,
     )
 
-    def get_connectivity(self, source: LDAPSource) -> dict[str, dict[str, str]] | None:
+    def get_connectivity(self, source: LDAPSource) -> Optional[dict[str, dict[str, str]]]:
         """Get cached source connectivity"""
         return cache.get(CACHE_KEY_STATUS + source.slug, None)
 
@@ -77,7 +77,6 @@ class LDAPSourceSerializer(SourceSerializer):
             "group_object_filter",
             "group_membership_field",
             "object_uniqueness_field",
-            "password_login_update_internal_password",
             "sync_users",
             "sync_users_password",
             "sync_groups",
@@ -119,7 +118,6 @@ class LDAPSourceViewSet(UsedByMixin, ModelViewSet):
         "group_object_filter",
         "group_membership_field",
         "object_uniqueness_field",
-        "password_login_update_internal_password",
         "sync_users",
         "sync_users_password",
         "sync_groups",

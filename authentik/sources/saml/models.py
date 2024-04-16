@@ -1,5 +1,7 @@
 """saml sp models"""
 
+from typing import Optional
+
 from django.db import models
 from django.http import HttpRequest
 from django.templatetags.static import static
@@ -190,7 +192,7 @@ class SAMLSource(Source):
     def ui_login_button(self, request: HttpRequest) -> UILoginButton:
         return UILoginButton(
             challenge=RedirectChallenge(
-                data={
+                instance={
                     "type": ChallengeTypes.REDIRECT.value,
                     "to": reverse(
                         "authentik_sources_saml:login",
@@ -202,7 +204,7 @@ class SAMLSource(Source):
             icon_url=self.icon_url,
         )
 
-    def ui_user_settings(self) -> UserSettingSerializer | None:
+    def ui_user_settings(self) -> Optional[UserSettingSerializer]:
         icon = self.icon_url
         if not icon:
             icon = static(f"authentik/sources/{self.slug}.svg")
